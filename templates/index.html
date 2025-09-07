@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif%}
+</head>
+<body>
+{%block content-%}
+<ul>
+  {% for p in products %}
+    <li>{{ p.name }} — {{p.price}} р.</li>
+    <li><img src="{{p.image_url}}"></li>
+  {% endfor %}
+</ul>
+<h1>{{ title }}</h1>
+{%endblock -%}
+</body>
+</html>
