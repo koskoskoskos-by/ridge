@@ -1,19 +1,43 @@
-<!DOCTYPE html>
-<head>
-    <meta charset="UTF-8">
-    {% if title %}
-    <title>{{ title }}</title>
-    {% endif%}
-</head>
-<body>
-{%block content-%}
-<ul>
-  {% for p in products %}
-    <li>{{ p.name }} — {{p.price}} р.</li>
-    <li><img src="{{p.image_url}}"></li>
-  {% endfor %}
-</ul>
-<h1>{{ title }}</h1>
-{%endblock -%}
-</body>
-</html>
+{%extends 'base.html'%}
+{%block content%}
+<main>
+    <h1 id="shop">Магазин</h1>
+     {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for message in messages %}
+            <li class="flash success">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+     <div id="sort">
+    <label for="sort-options">Сортировать по:</label>
+    <select id="sort-options" onchange="updateSort()">
+        <option value="GET_POPULAR_PRODUCTS" {% if sort_by == 'GET_POPULAR_PRODUCTS' %}selected{% endif %}>Популярные</option>
+        <option value="GET_CHEAP_PRODUCTS" {% if sort_by == 'GET_CHEAP_PRODUCTS' %}selected{% endif %}>По возрастанию цены</option>
+        <option value="GET_EXPENSIVE_PRODUCTS" {% if sort_by == 'GET_EXPENSIVE_PRODUCTS' %}selected{% endif %}>По убыванию цены</option>
+    </select>
+    </div>
+    <ul class="tovar">
+        {% for p in products %}
+        {%if p.stock_quantity>0%}
+            <li>
+                <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                <p>{{ p.name }} — {{ p.price }} р.</p>
+                <form action="/add-to-cart" method="POST">
+                <input type="hidden" name="id" value="{{ p.id }}">
+                <button type="submit" class="buy-btn">Купить</button>
+                </form>
+            </li>
+        {%endif%}
+        {% endfor %}
+    </ul>
+</main>
+<script>
+function updateSort() {
+    const value = document.getElementById("sort-options").value;
+    window.location.href = `/?sort=${value}`;
+}
+</script>
+{%endblock%}

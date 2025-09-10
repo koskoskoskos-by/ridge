@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <img src="static/images/free-icon-mountains-8792026 2.png" alt="Logo">
+        <div class="right-section">
+        <form class="search">
+            <input type="text" placeholder="Поиск..." aria-label="Поиск">
+            <button type="submit">🔍︎</button>
+        </form>
+        <ul class="nav-links">
+            <li><a href="#about">Магазин</a></li>
+            <li><a href="{{ url_for('cart') }}">Корзина</a></li>
+            <li><a href="#contact">Кабинет</a></li>
+        </ul>
+            </div>
+    </nav>
+</header>
+{% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,28 @@
+{%extends 'base.html'%}
+{%block content%}
+<main>
+    <li><a href="{{ url_for('index') }}">На главную страницу</a></li>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for message in messages %}
+            <li class="flash success">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <h1 id="shop">Ваши товары в корзине</h1>
+    <ul class="tovar">
+        {% for item in cart %}
+        <li>
+            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            <p>{{ item.name }} — {{ item.price }} р.</p>
+            <form action="/remove-from-cart" method="POST">
+                <input type="hidden" name="id" value="{{ item.id }}">
+                <button type="submit" class="buy-btn">Удалить</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</main>
+{%endblock%}
