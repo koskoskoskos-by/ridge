@@ -1,16 +1,16 @@
 {%extends 'base.html'%}
 {%block content%}
+   {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+  {% endif %}
+{% endwith %}
 <main>
     <li><a href="{{ url_for('index') }}">На главную страницу</a></li>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flash-messages">
-          {% for message in messages %}
-            <li class="flash success">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
     <h1 id="shop">Ваши товары в корзине</h1>
     <ul class="tovar">
         {% for item in cart %}

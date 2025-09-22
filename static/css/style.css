@@ -145,27 +145,16 @@ h1 {
 .tovar p {
     margin-top: auto;
 }
-   .flash-messages {
-    margin: 20px auto;
-    padding: 15px 25px;
-    max-width: 600px;
-    border-radius: 8px;
-    background-color: #e6f9e6;
-    color: #2e7d32;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #c8e6c9;
-    list-style: none;
-    transition: all 0.3s ease-in-out;
-}
-.flash-messages li {
-    margin-bottom: 5px;
-}
 .flash.success {
     background-color: #e6f9e6;
     color: #2e7d32;
+}
+
+.flash.unsuccess {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    font-style: italic;
 }
 @media (max-width: 600px) {
     .navbar {

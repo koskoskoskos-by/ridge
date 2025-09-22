@@ -15,9 +15,9 @@
             <button type="submit">🔍︎</button>
         </form>
         <ul class="nav-links">
-            <li><a href="#about">Магазин</a></li>
+            <li><a href="{{ url_for('index') }}">Магазин</a></li>
             <li><a href="{{ url_for('cart') }}">Корзина</a></li>
-            <li><a href="#contact">Кабинет</a></li>
+            <li><a href="{{ url_for('login') }}">Кабинет</a></li>
         </ul>
             </div>
     </nav>
