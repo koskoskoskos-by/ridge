@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="profile-container">
+    <h1>Профиль пользователя</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+    <section class="profile-info">
+        <p><strong>Имя:</strong> {{ user.name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </section>
+    <section class="profile-actions">
+        <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+    </section>
+</main>
+{% endblock %}

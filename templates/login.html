@@ -1,20 +1,24 @@
-{%extends 'base.html'%}
-{%block content%}
-{{ super() }}
-   {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class="flash-messages">
+{% extends 'base.html' %}
+{% block content %}
+<main class="auth-container">
+    <h1>Вход</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flash-messages">
             {% for category, message in messages %}
                 <li class="flash {{ category }}">{{ message }}</li>
             {% endfor %}
         </ul>
-  {% endif %}
-{% endwith %}
-<form action="{{url_for('login')}}" method="POST">
-{{form.hidden_tag() }}
-<p>{{form.email.label() }}{{form.email() }}</p>
-<p>{{form.password.label() }}{{form.password() }}</p>
-<p>{{form.submit() }}</p>
-</form>
-<li><a href="{{ url_for('registration') }}">Регистрация</a></li>
-{%endblock content%}
+    {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('login') }}" method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.email.label }}{{ form.email() }}</p>
+        <p>{{ form.password.label }}{{ form.password() }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <div class="link">
+        <p>Нет аккаунта? <a href="{{ url_for('registration') }}">Зарегистрироваться</a></p>
+    </div>
+</main>
+{% endblock %}

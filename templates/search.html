@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Результаты поиска: </h2>
+{% if search %}
+    <ul class="tovar">
+        {% for p in search%}
+        {%if p.stock_quantity>0%}
+            <li>
+                <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                <p>{{ p.name }} — {{ p.price }} р.</p>
+                <form action="/add-to-cart" method="POST">
+                <input type="hidden" name="id" value="{{ p.id }}">
+                <button type="submit" class="buy-btn">Купить</button>
+                </form>
+            </li>
+        {%endif%}
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Ничего не найдено.</p>
+{% endif %}
+{% endblock %}

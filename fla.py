@@ -3,7 +3,7 @@ from sql_q import *
 from forms import *
 from werkzeug.security import check_password_hash,generate_password_hash
 from User import *
-from flask_login import LoginManager, login_manager, login_user, login_required, current_user
+from flask_login import LoginManager, login_manager, login_user, login_required, current_user, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dfffdsfdlsdmdss'
@@ -30,16 +30,13 @@ def index():
 @login_required
 def remove_product():
     prod_id = request.form.get('id')
-    if prod_id in session['cart']:
-        session['cart'].remove(prod_id)
-        db.change_quantity(prod_id, -1)
-        session.modified = True
-        if len(session['cart']) == 0 :
-            return redirect(url_for('index'))
-        else:
-            return redirect(url_for('cart'))
+    id = current_user.get_id()
+    cart = db.get_cart(id)
+    db.del_product_from_cart(cart['cart_id'], int(prod_id))
+    db.change_quantity(prod_id, -1)
+    if db.get_products_in_cart(cart['cart_id']) is None:
+        return redirect(url_for('index'))
     else:
-        flash("Товар не найден в корзине", 'unsuccess')
         return redirect(url_for('cart'))
 
 
@@ -47,25 +44,24 @@ def remove_product():
 @login_required
 def buy_product():
     prod_id = request.form.get('id')
-    if prod_id is not None:
-        if 'cart' not in session:
-            session['cart'] = []
-        session['cart'].append(prod_id)
-        if None in session['cart']:
-            session['cart'].remove(None)
-        db.change_quantity(prod_id, 1)
-        session.modified = True
-        res = db.get_prod_info(prod_id)
-        flash(f"{res[0]['name']} добавлен в корзину", 'success')
+    id = current_user.get_id()
+    if db.get_cart(id) is None:
+        db.add_cart(id)
+    cart = db.get_cart(id)
+    db.add_product(cart['cart_id'], int(prod_id))
+    db.change_quantity(prod_id, 1)
+    res = db.get_prod_info(prod_id)
+    flash(f"{res['name']} добавлен в корзину", 'success')
     return redirect(url_for('cart'))
 
 
 @app.route('/cart')
 @login_required
 def cart():
-    cart = session.get('cart', [])
+    user_id = current_user.get_id()
+    cart = db.get_products_in_cart(int(user_id))
     if cart:
-        return render_template('cart.html', cart=get_cart(cart))
+        return render_template('cart.html', cart=cart)
     else:
         flash('Корзина пуста', 'unsuccess')
         return redirect(url_for('index'))
@@ -102,9 +98,33 @@ def registration():
     return render_template('registration.html', form=form)
 
 
-def get_cart(cart):
-    res = db.get_cart_sql(cart)
-    return res
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route("/profile")
+@login_required
+def profile():
+    user = db.get_user(current_user.get_id())
+    return render_template('profile.html', user=user)
+
+
+@app.route("/search")
+def search():
+    search = request.args.get('query', '').strip()
+    if not search:
+        return redirect(url_for('index'))
+    res = db.search_products(search)
+    print(res)
+    return render_template('search.html', search=res)
+
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    flash('Пожалуйста, войдите в аккаунт, чтобы получить доступ к этой странице.', 'unsuccess')
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
