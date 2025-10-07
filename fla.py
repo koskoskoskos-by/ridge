@@ -1,17 +1,24 @@
-from flask import Flask, render_template, url_for, request, flash, session, redirect
+from flask import Flask, render_template, url_for, request, flash, redirect
 from sql_q import *
 from forms import *
-from werkzeug.security import check_password_hash,generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 from User import *
 from flask_login import LoginManager, login_manager, login_user, login_required, current_user, logout_user
+from dotenv import load_dotenv
+from flask_admin import Admin, BaseView, expose
+import os
+import re
+from transliterate import translit
 
+
+load_dotenv()
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dfffdsfdlsdmdss'
-login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-url = 'postgres://postgres:567567@localhost:5432/flkurs'
-
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+url = os.getenv("DATABASE_URL")
+login_manager = LoginManager(app)
+admin = Admin(app)
 
 
 @login_manager.user_loader
@@ -21,7 +28,7 @@ def load_user(id):
 
 @app.route('/')
 def index():
-    sort_by = request.args.get('sort', 'stock_quantity desc')
+    sort_by = request.args.get('sort_by', 'stock_quantity desc')
     products = db.sort_by(sort_by)
     return render_template('index.html', products=products, sort_by=sort_by)
 
@@ -59,15 +66,15 @@ def buy_product():
 @login_required
 def cart():
     user_id = current_user.get_id()
-    cart = db.get_products_in_cart(int(user_id))
-    if cart:
-        return render_template('cart.html', cart=cart)
+    count = db.count_products(user_id)
+    if count:
+        return render_template('cart.html', cart=count)
     else:
         flash('Корзина пуста', 'unsuccess')
         return redirect(url_for('index'))
 
 
-@app.route('/login',methods=['POST', 'GET'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if current_user.is_authenticated:
         flash('Вы уже авторизованы', 'success')
@@ -117,14 +124,62 @@ def search():
     if not search:
         return redirect(url_for('index'))
     res = db.search_products(search)
-    print(res)
-    return render_template('search.html', search=res)
+    return render_template('index.html', products=res)
+
+
+@app.route("/shop/<slug>")
+def product(slug):
+    product = db.get_prod_by_slug(slug)
+    return render_template('product.html', product=product)
 
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     flash('Пожалуйста, войдите в аккаунт, чтобы получить доступ к этой странице.', 'unsuccess')
     return redirect(url_for('login'))
+
+
+class AdminCustom(BaseView):
+    @expose('/')
+    def index(self):
+        users = db.get_users()
+        return self.render('admin.html', users=users)
+
+
+class ProductsView(BaseView):
+    @expose('/')
+    def index(self):
+        sort = request.args.get('sort', 'stock_quantity desc')
+        products = db.sort_by(sort)
+        return self.render('admin_products.html', products=products, sort=sort)
+
+    @expose('/add_product', methods=['GET', 'POST'])
+    def add_product(self):
+        form = AddProductForm()
+        if form.validate_on_submit():
+            img_file = form.image.data
+            filename = secure_filename(img_file.filename)
+            image_path = os.path.join('static/images', filename)
+            img_file.save(image_path)
+            image_url = url_for('static', filename=f'images/{filename}', _external=True)
+            db.create_product(form.name.data, form.description.data, form.price.data,
+                              form.stock_quantity.data, image_url, slugify(form.name.data))
+            flash('Успешно добавлен товар', 'success')
+            return redirect(url_for('index'))
+        flash('Неверный ввод', 'unsuccess')
+        return self.render('add_product.html', form=form)
+
+
+def slugify(text):
+    text = translit(text, 'ru', reversed=True)
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    text = text.strip('-')
+    return text
+
+
+admin.add_view(AdminCustom(name='Пользователи', endpoint='users'))
+admin.add_view(ProductsView(name='Продукты', endpoint='products'))
 
 
 if __name__ == '__main__':

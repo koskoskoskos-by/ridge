@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-messages">
+        {% for category, message in messages %}
+          <li class="flash {{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+ <li><a href="{{ url_for('index') }}" class="buy-btn back-btn">← На главную страницу</a>
+</li>
+  <main>
+    <h1 id="shop">Товар: {{ product.name }}</h1>
+    <div class="product-detail-container">
+      <div class="product-detail-card">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+        <div class="product-info">
+          <p class="product-price">{{ product.price }} р.</p>
+          <p class="product-description">{{ product.description }}</p>
+
+          {% if product.stock_quantity > 0 %}
+            <form action="/add-to-cart" method="POST" class="product-actions">
+        <input type="hidden" name="id" value="{{ product.id }}">
+    <button type="submit" class="buy-btn details-btn">Купить</button>
+</form>
+          {% else %}
+            <p class="out-of-stock">Нет в наличии</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock %}

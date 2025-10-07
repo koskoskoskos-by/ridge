@@ -86,3 +86,27 @@ class DataBase:
     def search_products(self, search):
         query = f"select* from products where name ilike '{search}%'"
         return self.select_all(query)
+
+    def get_prod_by_slug(self, slug):
+        query = f"select * from products where slug = '{slug}'"
+        return self.select_one(query)
+
+    def count_products(self,user_id):
+        query = f"select name, price, id, count(id) as number, stock_quantity, image_url from products " \
+                f"join cart_items on products.id = cart_items.product_id " \
+                f"join shopping_cart on shopping_cart.cart_id = cart_items.cart_id " \
+                f"where shopping_cart.user_id = {user_id} group by id"
+        return self.select_all(query)
+
+    def get_users(self):
+        query = f"select * from users"
+        return self.select_all(query)
+
+    def get_products(self):
+        query = f"select * from products"
+        return self.select_all(query)
+
+    def create_product(self, name, description, price, stock_quantity, image_url, slug):
+        query = f"insert into products(name, description, price, stock_quantity, image_url, slug)" \
+                f"values('{name}', '{description}', {price}, {stock_quantity}, '{image_url}', '{slug}')"
+        return self.query_commit(query)

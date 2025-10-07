@@ -1,0 +1,39 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-messages">
+        {% for category, message in messages %}
+          <li class="flash {{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <main>
+    <form method="get" action="{{ url_for('products.index') }}">
+      <label for="sort">Сортировать по:</label>
+      <select name="sort" id="sort">
+        <option value="stock_quantity" {% if sort == 'stock_quantity' %}selected{% endif %}>Число на складе по возрастанию</option>
+        <option value="stock_quantity desc" {% if sort == 'stock_quantity desc' %}selected{% endif %}>Число на складе по убыванию</option>
+      </select>
+      <button type="submit" class="buy-btn details-btn">Применить</button>
+    </form>
+
+    <div class="add-product-section" style="margin: 20px 0;">
+      <a href="{{ url_for('products.add_product') }}" class="btn btn-success">➕ Добавить товар</a>
+    </div>
+
+    <h1 id="shop">Продукты</h1>
+    <ul class="tovar">
+      {% for product in products %}
+        <li>
+          <p><strong>{{ product.name }}</strong></p>
+          <p>На складе: {{ product.stock_quantity }}</p>
+          <p>Цена: {{ product.price }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </main>
+<script>
+</script>
+{% endblock %}

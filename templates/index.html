@@ -11,33 +11,31 @@
 {% endwith %}
 <main>
     <h1 id="shop">Магазин</h1>
-     <div id="sort">
+     <form method="get" action="{{ url_for('index') }}">
     <label for="sort-options">Сортировать по:</label>
-    <select id="sort-options" onchange="updateSort()">
+    <select id="sort-options" name="sort_by">
         <option value="stock_quantity desc" {% if sort_by == 'stock_quantity desc' %}selected{% endif %}>Популярные</option>
         <option value="price" {% if sort_by == 'price' %}selected{% endif %}>По возрастанию цены</option>
         <option value="price desc" {% if sort_by == 'price desc' %}selected{% endif %}>По убыванию цены</option>
     </select>
-    </div>
+    <button type="submit" >Применить</button>
+</form>
+<br>
     <ul class="tovar">
         {% for p in products %}
         {%if p.stock_quantity>0%}
             <li>
                 <img src="{{ p.image_url }}" alt="{{ p.name }}">
                 <p>{{ p.name }} — {{ p.price }} р.</p>
-                <form action="/add-to-cart" method="POST">
-                <input type="hidden" name="id" value="{{ p.id }}">
-                <button type="submit" class="buy-btn">Купить</button>
-                </form>
-            </li>
+               <form action="/add-to-cart" method="POST" class="product-actions">
+        <input type="hidden" name="id" value="{{ p.id }}">
+    <button type="submit" class="buy-btn details-btn">Купить</button>
+</form>
+                <br>
+<a href="{{ url_for('product', slug=p.slug) }}" class="buy-btn details-btn">Подробнее</a>
+</li>
         {%endif%}
         {% endfor %}
     </ul>
 </main>
-<script>
-function updateSort() {
-    const value = document.getElementById("sort-options").value;
-    window.location.href = `/?sort=${value}`;
-}
-</script>
 {%endblock%}

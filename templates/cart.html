@@ -10,19 +10,27 @@
   {% endif %}
 {% endwith %}
 <main>
-    <li><a href="{{ url_for('index') }}">На главную страницу</a></li>
+    <li><a href="{{ url_for('index') }}" class="buy-btn back-btn">← На главную страницу</a>
+</li>
     <h1 id="shop">Ваши товары в корзине</h1>
     <ul class="tovar">
-        {% for item in cart %}
-        <li>
-            <img src="{{ item.image_url }}" alt="{{ item.name }}">
-            <p>{{ item.name }} — {{ item.price }} р.</p>
-            <form action="/remove-from-cart" method="POST">
-                <input type="hidden" name="id" value="{{ item.id }}">
-                <button type="submit" class="buy-btn">Удалить</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+    {% for item in cart %}
+    <li>
+        <img src="{{ item.image_url }}" alt="{{ item.name }}">
+        <p>{{ item.name }} — {{ item.price }} р. × {{ item.number }} шт.</p>
+        {%if item.stock_quantity>0%}
+        <form action="/add-to-cart" method="POST">
+            <input type="hidden" name="id" value="{{ item.id }}">
+            <button type="submit" class="buy-btn">Купить</button>
+        </form>
+        {%endif%}
+        <form action="/remove-from-cart" method="POST">
+            <input type="hidden" name="id" value="{{ item.id }}">
+            <button type="submit" class="buy-btn">Удалить</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
 </main>
 {%endblock%}
